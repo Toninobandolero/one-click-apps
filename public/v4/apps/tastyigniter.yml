@@ -1,0 +1,67 @@
+captainVersion: 4
+services:
+ # tastyigniter
+ $$cap_appname:
+	depends_on:
+		- $$cap_appname_db
+
+    	image: thisisqasim/tastyigniter:$$cap_tastyigniter_version
+	restart: always  
+	ports:
+		- 8001:80
+    	hostname: $$cap_appname.$$cap_root_domain
+    	
+	environment:
+      		APP_URL='$$cap_app_url’
+      		DB_CONNECTION=mysql
+      		DB_HOST=srv-captain--$$cap_appname_db:3306
+      		DB_DATABASE=tastyigniter
+      		DB_USERNAME=$$cap_tastyigniter_username
+      		DB_PASSWORD=$$cap_gen_random_hex(10)
+      		CACHE_DRIVER=redis
+      		REDIS_HOST=redis
+ 	# db
+ $$cap_appname_db:
+    	image: mariadb:$$cap_mariadb_version
+    	volumes:
+     		 - $$cap_appname_db_data:/data/db
+ 	environment:
+     		MYSQL_RANDOM_ROOT_PASSWORD=yes
+      		MYSQL_DATABASE=tastyigniter
+      		MYSQL_USER=$$cap_appname_db_data_username
+      		MYSQL_PASSWORD=$$cap_gen_random_hex(10)
+    	restart: always
+# redis 
+$$cap_appname-redis:
+ 		image: redis:$$cap_version
+    		command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    		restart: always
+
+
+
+
+caproverOneClickApp:
+    variables:
+        - id: $$cap_tastyigniter_version
+          label: Tastyigniter Version
+          defaultValue: 'v3.4.0'
+          
+
+description: Check out their docker page for the valid tags https://hub.docker.com/r/thisisqasim/tastyigniter/tags    instructions:
+        start: >-
+           🔥 Powerful, yet easy to use, open-source online ordering, table reservation and management system for restaurants.
+        end: >-
+            You're done! 😄
+
+            Now enable https and force https from HTTP Settings tabs
+            After that visit https://$$cap_appname.$$cap_root_domain
+            And follow the installation steps
+            Make sure to change port 80 to 3000 in the installation steps
+
+            After you are done you will be redirected to $$cap_appname.$$cap_root_domain:3000
+            Just remove 3000 from the url and visit $$cap_appname.$$cap_root_domain
+            You will be redirected to https://$$cap_appname.$$cap_root_domain/login.html
+    displayName: 'Tastyigniter'
+    isOfficial: false
+    description: 🔥 Powerful, yet easy to use, open-source online ordering, table reservation and management system for restaurants.
+    documentation: Taken from https://tastyigniter.com/
